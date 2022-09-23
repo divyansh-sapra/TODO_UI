@@ -3,7 +3,9 @@ import {
   StyleSheet,
   Text,
   View,
+  TextInput,
   FlatList,
+  Keyboard,
   Modal,
   Image,
   TouchableOpacity,
@@ -73,8 +75,11 @@ export const HomeScreen = ({ navigation, route }) => {
   let [DATA, setData] = React.useState(false);
   let [markDeleteCompleteModal, setMarkDeleteCompleteModal] =
     React.useState(false);
+  let [addMainTaskModal, setAddMainTaskModal] = React.useState(false);
+  let [addNewMainTaskModel, setAddNewMainTaskModel] = React.useState(false);
   let [selectedTaskName, setSelectedTaskName] = React.useState("");
   let [mainTaskId, setMainTaskId] = React.useState("");
+  const textInputMainTaskValue = "Enter main task";
 
   const renderItem = ({ item }) => {
     const borderColor = item.borderColor;
@@ -99,6 +104,8 @@ export const HomeScreen = ({ navigation, route }) => {
       {DATA ? (
         <View style={styles.upperMainView}>
           {markDeleteCompleteModal ? <MarkDeleteCompleteModal /> : null}
+          {addMainTaskModal ? <AddNewTaskModal /> : null}
+          {addNewMainTaskModel ? <AddMainTask /> : null}
           <FlatList
             data={DATA}
             renderItem={renderItem}
@@ -121,7 +128,7 @@ export const HomeScreen = ({ navigation, route }) => {
         <TouchableOpacity
           style={styles.addButton}
           onPress={() => {
-            setData(false);
+            setAddMainTaskModal(!addMainTaskModal);
           }}
         >
           <Text style={styles.lowerButtonsText}>Add Task</Text>
@@ -140,6 +147,18 @@ export const HomeScreen = ({ navigation, route }) => {
       alert(res.message.errorMessage);
     } else {
       setData(false);
+    }
+  }
+
+  async function addItem(endpoint, mainTaskIdValue) {
+    let body = {
+      main_task: mainTaskIdValue,
+    };
+    let res = await helpers.fetchData(endpoint, body, token);
+    if (res.message.errorMessage != "") {
+      alert(res.message.errorMessage);
+    } else {
+      alert(res.message.successMessage);
     }
   }
 
@@ -163,6 +182,107 @@ export const HomeScreen = ({ navigation, route }) => {
     } else {
       setData(false);
     }
+  }
+
+  function AddNewTaskModal() {
+    return (
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={addMainTaskModal}
+        onRequestClose={() => {
+          setAddMainTaskModal(!addMainTaskModal);
+        }}
+      >
+        <View style={styles.upperModal}>
+          <TouchableOpacity
+            style={styles.upperModalTouch}
+            onPress={() => {
+              setAddMainTaskModal(!addMainTaskModal);
+            }}
+          ></TouchableOpacity>
+        </View>
+        <View style={styles.addTaskLowerModal}>
+          <Text style={styles.addTaskunSelectedText}>
+            To add main task, Click on{" "}
+            <Text style={styles.selectedText}>MAIN TASK </Text>
+          </Text>
+          <Text style={styles.addTaskunSelectedText}>
+            To add sub task, Click on{" "}
+            <Text style={styles.selectedText}>SUB TASK </Text>
+          </Text>
+          <View style={styles.addTaskLowerModelButtons}>
+            <TouchableOpacity
+              style={styles.addTaskMainTask}
+              onPress={() => {
+                setAddMainTaskModal(!addMainTaskModal);
+                setAddNewMainTaskModel(!addNewMainTaskModel);
+              }}
+            >
+              <Text style={styles.addTaskInnerButtonText}>MAIN TASK</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.addTaskSubTask} onPress={() => {}}>
+              <Text style={styles.addTaskInnerButtonText}>SUB TASK</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+    );
+  }
+
+  function AddMainTask() {
+    let [mainTaskIdValue, setMainTaskIdValue] = React.useState("");
+    return (
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={addNewMainTaskModel}
+        onRequestClose={() => {
+          setAddNewMainTaskModel(!addNewMainTaskModel);
+        }}
+      >
+        <View style={styles.addMainTaskUpperModal}>
+          <TouchableOpacity
+            style={styles.addMainTaskUpperModalTouch}
+            onPress={() => {
+              setAddMainTaskModal(!addMainTaskModal);
+              setAddNewMainTaskModel(!addNewMainTaskModel);
+            }}
+          ></TouchableOpacity>
+        </View>
+        <View style={styles.addNewTaskLowerModal}>
+          <Text style={styles.addNewTaskUnSelectedText}>
+            <Text style={styles.selectedText}>Enter Main Task </Text>
+          </Text>
+          <TextInput
+            value={mainTaskIdValue}
+            style={styles.textInput}
+            placeholder={textInputMainTaskValue}
+            onChangeText={(text) => setMainTaskIdValue(text)}
+            autoCapitalize="sentences"
+          />
+          <TouchableOpacity
+            style={styles.addMainTask}
+            onPress={() => {
+              Keyboard.dismiss();
+              addItem("add-main-task", mainTaskIdValue);
+              setMainTaskIdValue("");
+            }}
+          >
+            <Text style={styles.innerButtonText}>ADD TASK</Text>
+          </TouchableOpacity>
+        </View>
+        <View style={styles.addMainTaskUpperModal}>
+          <TouchableOpacity
+            style={styles.addMainTaskUpperModalTouch}
+            onPress={() => {
+              setAddMainTaskModal(!addMainTaskModal);
+              setAddNewMainTaskModel(!addNewMainTaskModel);
+            }}
+          ></TouchableOpacity>
+        </View>
+      </Modal>
+    );
   }
 
   function MarkDeleteCompleteModal() {
@@ -312,7 +432,7 @@ const styles = StyleSheet.create({
   unSelectedText: {
     fontWeight: "200",
     padding: 10,
-    height: "55%",
+    height: "45%",
     fontSize: 13,
   },
   selectedText: {
@@ -322,6 +442,18 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-evenly",
     width: "100%",
+  },
+  addTaskLowerModelButtons: {
+    paddingTop: 10,
+    flexDirection: "row",
+    justifyContent: "space-evenly",
+    width: "100%",
+  },
+  addTaskunSelectedText: {
+    fontWeight: "200",
+    paddingTop: 10,
+    height: "25%",
+    fontSize: 13,
   },
   completeButton: {
     backgroundColor: "#BBCB50",
@@ -340,5 +472,72 @@ const styles = StyleSheet.create({
     paddingTop: 8,
     paddingBottom: 8,
     color: "#f5dfe5",
+  },
+  addTaskLowerModal: {
+    height: "20%",
+    backgroundColor: "#7aa7f5",
+    borderTopLeftRadius: 14,
+    borderTopRightRadius: 14,
+    borderWidth: 3,
+    width: "100%",
+    borderColor: "#f55d90",
+    alignItems: "center",
+  },
+  addTaskSubTask: {
+    backgroundColor: "#78FFC4",
+    borderRadius: 5,
+    justifyContent: "center",
+    width: "35%",
+  },
+  addTaskMainTask: {
+    backgroundColor: "#FDC2E4",
+    justifyContent: "center",
+    borderRadius: 5,
+    width: "35%",
+  },
+  addTaskInnerButtonText: {
+    textAlign: "center",
+    paddingTop: 8,
+    paddingBottom: 8,
+  },
+  addMainTaskUpperModal: {
+    flex: 1.5,
+  },
+  addMainTaskUpperModalTouch: {
+    height: "100%",
+    opacity: 0,
+  },
+  textInput: {
+    backgroundColor: "white",
+    borderRadius: 4,
+    color: "black",
+    borderColor: "red",
+    padding: 10,
+    fontFamily: "normal",
+    height: "50%",
+  },
+  addNewTaskLowerModal: {
+    flex: 2,
+    backgroundColor: "#f5dfe5",
+    borderTopLeftRadius: 14,
+    borderTopRightRadius: 14,
+    borderWidth: 3,
+    width: "100%",
+    justifyContent: "space-between",
+    borderColor: "#f55d90",
+  },
+  addNewTaskUnSelectedText: {
+    fontWeight: "200",
+    padding: 10,
+    // height: "10%",
+    fontSize: 13,
+  },
+  addMainTask: {
+    backgroundColor: "#BBCB50",
+    borderRadius: 5,
+    justifyContent: "center",
+    width: "35%",
+    alignSelf: "center",
+    marginBottom: 10,
   },
 });
