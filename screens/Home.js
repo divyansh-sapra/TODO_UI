@@ -9,11 +9,14 @@ import {
   Modal,
   Image,
   TouchableOpacity,
+  ScrollView,
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import * as helpers from "../Helper";
 import * as ConstantResponse from "../ConstantResponse";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import SelectList from "react-native-dropdown-select-list";
+import CalendarPicker from "react-native-calendar-picker";
 
 const Item = ({ item, borderColor, onLongPress, onPress }) => {
   return (
@@ -73,10 +76,12 @@ export const HomeScreen = ({ navigation, route }) => {
 
   let [token, setToken] = React.useState(null);
   let [DATA, setData] = React.useState(false);
+  let [dropdownData, setDropdownData] = React.useState("");
   let [markDeleteCompleteModal, setMarkDeleteCompleteModal] =
     React.useState(false);
-  let [addMainTaskModal, setAddMainTaskModal] = React.useState(false);
-  let [addNewMainTaskModel, setAddNewMainTaskModel] = React.useState(false);
+  let [addMainTaskModal, setAddMainTaskModal] = React.useState(false); //main modal
+  let [addNewMainTaskModel, setAddNewMainTaskModel] = React.useState(false); //main task modal
+  let [addnewSubTask, setAddnewSubTask] = React.useState(false); //subtask modal
   let [selectedTaskName, setSelectedTaskName] = React.useState("");
   let [mainTaskId, setMainTaskId] = React.useState("");
   const textInputMainTaskValue = "Enter main task";
@@ -106,6 +111,7 @@ export const HomeScreen = ({ navigation, route }) => {
           {markDeleteCompleteModal ? <MarkDeleteCompleteModal /> : null}
           {addMainTaskModal ? <AddNewTaskModal /> : null}
           {addNewMainTaskModel ? <AddMainTask /> : null}
+          {addnewSubTask ? <AddSubTask /> : null}
           <FlatList
             data={DATA}
             renderItem={renderItem}
@@ -136,6 +142,12 @@ export const HomeScreen = ({ navigation, route }) => {
       </View>
     </View>
   );
+
+  async function getSubTaskDropdown() {
+    let data = await helpers.fetchGetData("get-task-dropdown", {}, token);
+    data = data["dropdownData"];
+    setDropdownData(data);
+  }
 
   async function deleteItem(endpoint) {
     let body = {
@@ -221,8 +233,106 @@ export const HomeScreen = ({ navigation, route }) => {
             >
               <Text style={styles.addTaskInnerButtonText}>MAIN TASK</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.addTaskSubTask} onPress={() => {}}>
+            <TouchableOpacity
+              style={styles.addTaskSubTask}
+              onPress={() => {
+                setAddMainTaskModal(!addMainTaskModal);
+                setAddnewSubTask(!addnewSubTask);
+                getSubTaskDropdown();
+              }}
+            >
               <Text style={styles.addTaskInnerButtonText}>SUB TASK</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+    );
+  }
+
+  function AddSubTask() {
+    let [mainTaskIdValue, setMainTaskIdValue] = React.useState("");
+    const data = [
+      { key: "HIGH", value: "High" },
+      { key: "MEDIUM", value: "Medium" },
+      { key: "LOW", value: "Low" },
+    ];
+    const [selectedPriority, setSelectedPriority] = React.useState("");
+    const [selectedDate, setSelectedDate] = React.useState("");
+    let [subTask, setSubTask] = React.useState("");
+    const placeHolderSubTask = "Enter Task";
+    const [date, setDate] = React.useState(new Date());
+    const [open, setOpen] = React.useState(true);
+    const today = new Date();
+
+    async function onDateChange(date) {
+      setSelectedDate(date);
+    }
+
+    return (
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={addnewSubTask}
+        onRequestClose={() => {
+          setAddnewSubTask(!addnewSubTask);
+        }}
+      >
+        <View style={styles.addSubTaskInner}>
+          <Text style={styles.addSubTaskText}>Add New Sub Task</Text>
+          <TextInput
+            value={subTask}
+            style={styles.textInput}
+            placeholder={placeHolderSubTask}
+            onChangeText={(text) => setSubTask(text)}
+            autoCapitalize="sentences"
+            multiline={true}
+          />
+          <View>
+            <Text style={styles.subHeadings}>Select Main Task</Text>
+            <SelectList
+              boxStyles={styles.dropdownBox}
+              setSelected={setMainTaskIdValue}
+              data={dropdownData}
+              maxHeight={130}
+              dropdownStyles={styles.dropdownStyles}
+              dropdownItemStyles={styles.dropdownItemStyles}
+            />
+          </View>
+          <View>
+            <Text style={styles.subHeadings}>Select Priority</Text>
+            <SelectList
+              boxStyles={styles.dropdownBox}
+              setSelected={setSelectedPriority}
+              data={data}
+              maxHeight={130}
+              dropdownStyles={styles.dropdownStyles}
+              dropdownItemStyles={styles.dropdownItemStyles}
+            />
+          </View>
+          <View>
+            <Text style={styles.subHeadings}>Select Date</Text>
+            <CalendarPicker
+              onDateChange={() => onDateChange()}
+              minDate={today}
+            />
+          </View>
+          <View style={styles.buttons}>
+            <TouchableOpacity
+              style={styles.cancelButtonSubTask}
+              onPress={() => {
+                setAddMainTaskModal(!addMainTaskModal);
+                setAddnewSubTask(!addnewSubTask);
+              }}
+            >
+              <Text>CANCEL</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.proceedButtonSubTask}
+              onPress={() =>
+                console.log([subTask, selectedPriority, mainTaskIdValue])
+              }
+            >
+              <Text>PROCEED</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -252,7 +362,7 @@ export const HomeScreen = ({ navigation, route }) => {
         </View>
         <View style={styles.addNewTaskLowerModal}>
           <Text style={styles.addNewTaskUnSelectedText}>
-            <Text style={styles.selectedText}>Enter Main Task </Text>
+            <Text style={styles.selectedText}>Add Main Task </Text>
           </Text>
           <TextInput
             value={mainTaskIdValue}
@@ -501,7 +611,7 @@ const styles = StyleSheet.create({
     paddingBottom: 8,
   },
   addMainTaskUpperModal: {
-    flex: 1.5,
+    flex: 1,
   },
   addMainTaskUpperModalTouch: {
     height: "100%",
@@ -514,7 +624,7 @@ const styles = StyleSheet.create({
     borderColor: "red",
     padding: 10,
     fontFamily: "normal",
-    height: "50%",
+    height: "30%",
   },
   addNewTaskLowerModal: {
     flex: 2,
@@ -539,5 +649,52 @@ const styles = StyleSheet.create({
     width: "35%",
     alignSelf: "center",
     marginBottom: 10,
+  },
+  addSubTaskInner: {
+    flex: 1,
+    backgroundColor: "#08234D",
+    justifyContent: "space-between",
+    padding: 10,
+  },
+  dropdownBox: {
+    backgroundColor: "#ffffff",
+    width: "70%",
+  },
+  addSubTaskText: {
+    color: "#ffffff",
+    paddingTop: 10,
+    fontWeight: "500",
+    fontSize: 18,
+    textAlign: "center",
+  },
+  subHeadings: {
+    color: "#ffffff",
+  },
+  dropdownStyles: {
+    backgroundColor: "#ffffff",
+  },
+  dropdownItemStyles: {
+    color: "grey",
+  },
+  buttons: {
+    flexDirection: "row",
+    justifyContent: "space-evenly",
+    paddingBottom: 10,
+  },
+  cancelButtonSubTask: {
+    backgroundColor: "#F24F3C",
+    justifyContent: "center",
+    width: "35%",
+    height: "35%",
+    alignItems: "center",
+    borderRadius: 4,
+  },
+  proceedButtonSubTask: {
+    backgroundColor: "#F2EB21",
+    justifyContent: "center",
+    width: "35%",
+    alignItems: "center",
+    height: "35%",
+    borderRadius: 4,
   },
 });
