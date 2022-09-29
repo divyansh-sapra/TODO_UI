@@ -7,7 +7,6 @@ import {
   TextInput,
   Modal,
   TouchableOpacity,
-  ActivityIndicator,
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import * as helpers from "../Helper";
@@ -18,10 +17,10 @@ export const Login = ({ navigation, route }) => {
   let textInputUserName = "Enter Username";
   let textInputEmail = "Enter Email";
   let textInputPassword = "Enter Password";
-  let [email, setEmail] = React.useState("divyanshsapra5@gmail.com");
-  let [username, setUsername] = React.useState("admin.divyansh");
+  let [email, setEmail] = React.useState("");
+  let [username, setUsername] = React.useState("");
   let [passwordUsername, setPasswordUsername] = React.useState("");
-  let [password, setPassword] = React.useState("Password#10");
+  let [password, setPassword] = React.useState("");
   let [secure, setSecure] = React.useState(true);
   let [modalVisible, setModalVisible] = React.useState(false);
 

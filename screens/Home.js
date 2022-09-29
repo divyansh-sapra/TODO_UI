@@ -106,12 +106,12 @@ export const HomeScreen = ({ navigation, route }) => {
   return (
     <View style={styles.container}>
       <StatusBar style="dark" />
+      {markDeleteCompleteModal ? <MarkDeleteCompleteModal /> : null}
+      {addMainTaskModal ? <AddNewTaskModal /> : null}
+      {addNewMainTaskModel ? <AddMainTask /> : null}
+      {addnewSubTask ? <AddSubTask /> : null}
       {DATA ? (
         <View style={styles.upperMainView}>
-          {markDeleteCompleteModal ? <MarkDeleteCompleteModal /> : null}
-          {addMainTaskModal ? <AddNewTaskModal /> : null}
-          {addNewMainTaskModel ? <AddMainTask /> : null}
-          {addnewSubTask ? <AddSubTask /> : null}
           <FlatList
             data={DATA}
             renderItem={renderItem}
@@ -203,6 +203,7 @@ export const HomeScreen = ({ navigation, route }) => {
         transparent={true}
         visible={addMainTaskModal}
         onRequestClose={() => {
+          setData(false);
           setAddMainTaskModal(!addMainTaskModal);
         }}
       >
@@ -210,6 +211,7 @@ export const HomeScreen = ({ navigation, route }) => {
           <TouchableOpacity
             style={styles.upperModalTouch}
             onPress={() => {
+              setData(false);
               setAddMainTaskModal(!addMainTaskModal);
             }}
           ></TouchableOpacity>
@@ -257,16 +259,15 @@ export const HomeScreen = ({ navigation, route }) => {
       { key: "LOW", value: "Low" },
     ];
     const [selectedPriority, setSelectedPriority] = React.useState("");
-    const [selectedDate, setSelectedDate] = React.useState("");
+    const [selectedDate, setSelectedDate] = React.useState("Select Date");
     let [subTask, setSubTask] = React.useState("");
     const placeHolderSubTask = "Enter Task";
-    const [date, setDate] = React.useState(new Date());
-    const [open, setOpen] = React.useState(true);
+    let [showCalender, setShowCalender] = React.useState(false);
     const today = new Date();
 
-    async function onDateChange(date) {
-      setSelectedDate(date);
-    }
+    // async function onDateChange(date) {
+    //   setSelectedDate(date);
+    // }
 
     return (
       <Modal
@@ -278,10 +279,11 @@ export const HomeScreen = ({ navigation, route }) => {
         }}
       >
         <View style={styles.addSubTaskInner}>
+          {showCalender ? <Calender /> : null}
           <Text style={styles.addSubTaskText}>Add New Sub Task</Text>
           <TextInput
             value={subTask}
-            style={styles.textInput}
+            style={styles.addSubTaskInput}
             placeholder={placeHolderSubTask}
             onChangeText={(text) => setSubTask(text)}
             autoCapitalize="sentences"
@@ -293,7 +295,7 @@ export const HomeScreen = ({ navigation, route }) => {
               boxStyles={styles.dropdownBox}
               setSelected={setMainTaskIdValue}
               data={dropdownData}
-              maxHeight={130}
+              maxHeight={145}
               dropdownStyles={styles.dropdownStyles}
               dropdownItemStyles={styles.dropdownItemStyles}
             />
@@ -304,17 +306,26 @@ export const HomeScreen = ({ navigation, route }) => {
               boxStyles={styles.dropdownBox}
               setSelected={setSelectedPriority}
               data={data}
-              maxHeight={130}
+              maxHeight={145}
               dropdownStyles={styles.dropdownStyles}
               dropdownItemStyles={styles.dropdownItemStyles}
             />
           </View>
+          <Text style={styles.subHeadings}>Selected Date</Text>
           <View>
-            <Text style={styles.subHeadings}>Select Date</Text>
-            <CalendarPicker
-              onDateChange={() => onDateChange()}
-              minDate={today}
-            />
+            <Text style={styles.dateText}>{selectedDate}</Text>
+            <TouchableOpacity
+              onPress={() => {
+                setShowCalender(!showCalender);
+              }}
+              underlayColor="none"
+              style={styles.calenderButton}
+            >
+              <Image
+                style={styles.calenderImage}
+                source={require("../assets/app_assets/calender.png")}
+              />
+            </TouchableOpacity>
           </View>
           <View style={styles.buttons}>
             <TouchableOpacity
@@ -328,9 +339,11 @@ export const HomeScreen = ({ navigation, route }) => {
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.proceedButtonSubTask}
-              onPress={() =>
-                console.log([subTask, selectedPriority, mainTaskIdValue])
-              }
+              onPress={() => {
+                addSubTaskCall("add-sub-task");
+                setAddMainTaskModal(!addMainTaskModal);
+                setAddnewSubTask(!addnewSubTask);
+              }}
             >
               <Text>PROCEED</Text>
             </TouchableOpacity>
@@ -338,6 +351,58 @@ export const HomeScreen = ({ navigation, route }) => {
         </View>
       </Modal>
     );
+
+    function Calender() {
+      return (
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={showCalender}
+          onRequestClose={() => {
+            setShowCalender(!showCalender);
+          }}
+        >
+          <View style={styles.addMainTaskUpperModal}>
+            <TouchableOpacity
+              style={styles.addMainTaskUpperModalTouch}
+              onPress={() => {
+                setShowCalender(!showCalender);
+              }}
+            ></TouchableOpacity>
+          </View>
+          <View style={styles.addSubTaskLowerModal}>
+            <CalendarPicker
+              onDateChange={(date) => {
+                setSelectedDate(date.toDate().toISOString().substring(0, 10));
+                setShowCalender(!showCalender);
+              }}
+              minDate={today}
+            />
+          </View>
+          <View style={styles.addMainTaskUpperModal}>
+            <TouchableOpacity
+              style={styles.addMainTaskUpperModalTouch}
+              onPress={() => {
+                setShowCalender(!showCalender);
+              }}
+            ></TouchableOpacity>
+          </View>
+        </Modal>
+      );
+    }
+
+    async function addSubTaskCall(endpoint) {
+      let body = {
+        priority: selectedPriority,
+        date: selectedDate,
+        main_task_id: mainTaskIdValue,
+        task_details: subTask,
+      };
+      let res = await helpers.fetchData(endpoint, body, token);
+      if (res.message.errorMessage != "") {
+        alert(res.message.errorMessage);
+      }
+    }
   }
 
   function AddMainTask() {
@@ -668,6 +733,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   subHeadings: {
+    paddingTop: 10,
     color: "#ffffff",
   },
   dropdownStyles: {
@@ -679,7 +745,7 @@ const styles = StyleSheet.create({
   buttons: {
     flexDirection: "row",
     justifyContent: "space-evenly",
-    paddingBottom: 10,
+    paddingTop: 10,
   },
   cancelButtonSubTask: {
     backgroundColor: "#F24F3C",
@@ -696,5 +762,41 @@ const styles = StyleSheet.create({
     alignItems: "center",
     height: "35%",
     borderRadius: 4,
+  },
+  dateText: {
+    backgroundColor: "#ffffff",
+    borderRadius: 4,
+    width: "70%",
+    paddingLeft: 5,
+  },
+  calenderButton: {
+    flex: 1,
+    width: 25,
+    paddingTop: "25%",
+    position: "absolute",
+    right: "30%",
+  },
+  calenderImage: {
+    width: 20,
+    height: 20,
+  },
+  addSubTaskInput: {
+    backgroundColor: "white",
+    borderRadius: 4,
+    color: "black",
+    borderColor: "red",
+    padding: 10,
+    fontFamily: "normal",
+    height: "20%",
+  },
+  addSubTaskLowerModal: {
+    flex: 1.6,
+    backgroundColor: "#f5dfe5",
+    borderTopLeftRadius: 14,
+    borderTopRightRadius: 14,
+    borderWidth: 3,
+    width: "100%",
+    justifyContent: "space-between",
+    borderColor: "#f55d90",
   },
 });
