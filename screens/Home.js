@@ -58,7 +58,7 @@ const Item = ({ item, borderColor, onLongPress, onPress }) => {
   );
 };
 
-export const HomeScreen = ({ navigation, route }) => {
+export const HomeScreen = ({ navigation }) => {
   React.useEffect(() => {
     const getToken = async () => {
       let value = await AsyncStorage.getItem("token");
@@ -98,7 +98,9 @@ export const HomeScreen = ({ navigation, route }) => {
           setMarkDeleteCompleteModal(!markDeleteCompleteModal);
         }}
         onPress={() => {
-          console.log("Short Press");
+          helpers.navigateTo(navigation, "SubTaskMain", {
+            navigateMainTaskId: item.mainTaskId,
+          });
         }}
       />
     );

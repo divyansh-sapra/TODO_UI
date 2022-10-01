@@ -29,6 +29,6 @@ export const fetchGetData = async (endpoint, body = {}, token) => {
     });
   return data;
 };
-export const navigateTo = (navigation, screenName) => {
-  navigation.navigate(screenName);
+export const navigateTo = (navigation, screenName, route={}) => {
+  navigation.navigate(screenName, route);
 };

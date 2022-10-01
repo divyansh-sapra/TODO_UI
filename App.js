@@ -10,6 +10,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { Login } from "./screens/Login";
 import { SignUp } from "./screens/SignUp";
 import { HomeScreen } from "./screens/Home";
+import { SubTaskMain } from "./screens/SubTask";
 
 const Stack = createNativeStackNavigator();
 
@@ -47,6 +48,7 @@ const App = () => {
         <Stack.Screen name="Login" component={Login} />
         <Stack.Screen name="SignUp" component={SignUp} />
         <Stack.Screen name="HomeScreen" component={HomeScreen} />
+        <Stack.Screen name="SubTaskMain" component={SubTaskMain} />
       </Stack.Navigator>
     </NavigationContainer>
   );
