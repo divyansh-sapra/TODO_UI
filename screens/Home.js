@@ -60,17 +60,14 @@ const Item = ({ item, borderColor, onLongPress, onPress }) => {
 
 export const HomeScreen = ({ navigation }) => {
   React.useEffect(() => {
-    
     const getToken = async () => {
       let value = await AsyncStorage.getItem("token");
       setToken(value);
     };
-    
     const getData = async () => {
       let data = await helpers.fetchGetData("get-user-task", {}, token);
       setData(data[0]);
     };
-    
     getToken();
     if (DATA == false) {
       getData();
