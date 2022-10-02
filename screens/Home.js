@@ -64,6 +64,7 @@ export const HomeScreen = ({ navigation }) => {
       let value = await AsyncStorage.getItem("token");
       setToken(value);
     };
+    
     const getData = async () => {
       let data = await helpers.fetchGetData("get-user-task", {}, token);
       setData(data[0]);
