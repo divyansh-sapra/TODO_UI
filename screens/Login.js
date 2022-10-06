@@ -17,10 +17,10 @@ export const Login = ({ navigation, route }) => {
   let textInputUserName = "Enter Username";
   let textInputEmail = "Enter Email";
   let textInputPassword = "Enter Password";
-  let [email, setEmail] = React.useState("");
-  let [username, setUsername] = React.useState("");
+  let [email, setEmail] = React.useState("poonamsapra73@gmail.com");
+  let [username, setUsername] = React.useState("poonam.admin");
   let [passwordUsername, setPasswordUsername] = React.useState("");
-  let [password, setPassword] = React.useState("");
+  let [password, setPassword] = React.useState("Poonam@73");
   let [secure, setSecure] = React.useState(true);
   let [modalVisible, setModalVisible] = React.useState(false);
 

@@ -73,6 +73,9 @@ export const HomeScreen = ({ navigation }) => {
     if (DATA == false) {
       getData();
     }
+    navigation.addListener('focus', () => {
+      getData();
+    })
   });
 
   let [token, setToken] = React.useState(null);
@@ -101,6 +104,7 @@ export const HomeScreen = ({ navigation }) => {
         onPress={() => {
           helpers.navigateTo(navigation, "SubTaskMain", {
             navigateMainTaskId: item.mainTaskId,
+            navigateMainTaskName: item.mainTasks
           });
         }}
       />
