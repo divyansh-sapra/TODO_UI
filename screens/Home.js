@@ -64,7 +64,7 @@ export const HomeScreen = ({ navigation }) => {
       let value = await AsyncStorage.getItem("token");
       setToken(value);
     };
-    
+
     const getData = async () => {
       let data = await helpers.fetchGetData("get-user-task", {}, token);
       setData(data[0]);
@@ -73,9 +73,9 @@ export const HomeScreen = ({ navigation }) => {
     if (DATA == false) {
       getData();
     }
-    navigation.addListener('focus', () => {
+    navigation.addListener("focus", () => {
       getData();
-    })
+    });
   });
 
   let [token, setToken] = React.useState(null);
@@ -104,7 +104,7 @@ export const HomeScreen = ({ navigation }) => {
         onPress={() => {
           helpers.navigateTo(navigation, "SubTaskMain", {
             navigateMainTaskId: item.mainTaskId,
-            navigateMainTaskName: item.mainTasks
+            navigateMainTaskName: item.mainTasks,
           });
         }}
       />
@@ -112,6 +112,19 @@ export const HomeScreen = ({ navigation }) => {
   };
   return (
     <View style={styles.container}>
+      <TouchableOpacity
+        onPress={() => {
+          logoutUser("logout-user", navigation);
+        }}
+        underlayColor="none"
+        style={styles.logoutButton}
+      >
+        <Text style={styles.logoutText}>LOGOUT{" "}</Text>
+        <Image
+          style={styles.logoutImage}
+          source={require("../assets/app_assets/logout.png")}
+        />
+      </TouchableOpacity>
       <StatusBar style="dark" />
       {markDeleteCompleteModal ? <MarkDeleteCompleteModal /> : null}
       {addMainTaskModal ? <AddNewTaskModal /> : null}
@@ -201,6 +214,12 @@ export const HomeScreen = ({ navigation }) => {
     } else {
       setData(false);
     }
+  }
+
+  async function logoutUser(endpoint, navigation) {
+    let res = await helpers.fetchData(endpoint, {}, token);
+    AsyncStorage.clear();
+    helpers.navigateTo(navigation, "Login");
   }
 
   function AddNewTaskModal() {
@@ -523,6 +542,7 @@ const styles = StyleSheet.create({
   lowerButtons: {
     height: "8%",
     flexDirection: "row",
+    bottom: 50,
   },
   clearAllButton: {
     flex: 1,
@@ -805,5 +825,23 @@ const styles = StyleSheet.create({
     width: "100%",
     justifyContent: "space-between",
     borderColor: "#f55d90",
+  },
+  logoutImage: {
+    height: 30,
+    width: 30,
+  },
+  logoutButton: {
+    alignSelf: "flex-end",
+    flexDirection: "row",
+    backgroundColor: "yellow",
+    width: 120,
+    justifyContent: "center",
+    padding: 5,
+    borderRadius: 8,
+    marginTop: 10,
+    marginRight: 10,
+  },
+  logoutText: {
+    justifyContent: "center",
   },
 });

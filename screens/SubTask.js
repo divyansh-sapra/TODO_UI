@@ -71,6 +71,9 @@ export const SubTaskMain = ({ route, navigation }) => {
   let [fullSubTask, openFullSubTask] = React.useState(false);
   let [editSubTask, editFullSubTask] = React.useState(false);
   let [subTask, setSubTask] = React.useState(null);
+  let [showCalender, setShowCalender] = React.useState(false);
+  const [selectedDate, setSelectedDate] = React.useState("Select Date");
+  const today = new Date();
   const params = route.params;
   const mainTaskId = params.navigateMainTaskId;
   const mainTaskName = params.navigateMainTaskName;
@@ -119,6 +122,8 @@ export const SubTaskMain = ({ route, navigation }) => {
     <View style={styles.container}>
       {fullSubTask ? <FullSubTask /> : null}
       {editSubTask ? <EditSubTask /> : null}
+      {showCalender ? <Calender /> : null}
+
       <View style={styles.mainItemHeading}>
         <Text style={styles.headingItemText}>{mainTaskName}</Text>
       </View>
@@ -241,13 +246,21 @@ export const SubTaskMain = ({ route, navigation }) => {
               onChangeText={(text) => updateTempProgress(text)}
             />
             <Text style={styles.selectedText}>Last Date:</Text>
-            <TextInput
-              value={tempcompleteDate}
-              style={[styles.updateTexinputunSelectedText, styles.height50]}
-              autoCapitalize="sentences"
-              multiline={true}
-              onChangeText={(text) => updateTempCompleteDate(text)}
-            />
+            <View>
+              <Text style={styles.dateText}>{selectedDate}</Text>
+              <TouchableOpacity
+                onPress={() => {
+                  setShowCalender(!showCalender);
+                }}
+                underlayColor="none"
+                style={styles.calenderButton}
+              >
+                <Image
+                  style={styles.calenderImage}
+                  source={require("../assets/app_assets/calender.png")}
+                />
+              </TouchableOpacity>
+            </View>
             <Text style={styles.selectedText}>Priority: {tempPriority}</Text>
             <SelectList
               boxStyles={styles.dropdownBox}
@@ -265,7 +278,6 @@ export const SubTaskMain = ({ route, navigation }) => {
                 updateTask(
                   "update-user-sub-task",
                   tempTask,
-                  tempcompleteDate,
                   tempPriority,
                   tempProgress
                 );
@@ -279,18 +291,51 @@ export const SubTaskMain = ({ route, navigation }) => {
     );
   }
 
-  async function updateTask(
-    endpoint,
-    tempTask,
-    tempcompleteDate,
-    tempPriority,
-    tempProgress
-  ) {
+  function Calender() {
+    return (
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={showCalender}
+        onRequestClose={() => {
+          setShowCalender(!showCalender);
+        }}
+      >
+        <View style={styles.addMainTaskUpperModal}>
+          <TouchableOpacity
+            style={styles.addMainTaskUpperModalTouch}
+            onPress={() => {
+              setShowCalender(!showCalender);
+            }}
+          ></TouchableOpacity>
+        </View>
+        <View style={styles.addSubTaskLowerModal}>
+          <CalendarPicker
+            onDateChange={(date) => {
+              setSelectedDate(date.toDate().toISOString().substring(0, 10));
+              setShowCalender(!showCalender);
+            }}
+            minDate={today}
+          />
+        </View>
+        <View style={styles.addMainTaskUpperModal}>
+          <TouchableOpacity
+            style={styles.addMainTaskUpperModalTouch}
+            onPress={() => {
+              setShowCalender(!showCalender);
+            }}
+          ></TouchableOpacity>
+        </View>
+      </Modal>
+    );
+  }
+
+  async function updateTask(endpoint, tempTask, tempPriority, tempProgress) {
     let body = {
       sub_task_id: subTask.subTaskId,
       sub_task_priority: tempPriority,
       sub_task_progress: tempProgress,
-      sub_task_complete_date: tempcompleteDate,
+      sub_task_complete_date: selectedDate,
       sub_task_task: tempTask,
     };
     editFullSubTask(!editSubTask);
@@ -331,6 +376,7 @@ export const SubTaskMain = ({ route, navigation }) => {
 
 const styles = StyleSheet.create({
   container: {
+    height: "100%",
     backgroundColor: "#2A2E74",
     marginTop: 26,
   },
@@ -498,5 +544,9 @@ const styles = StyleSheet.create({
     width: "100%",
     justifyContent: "space-between",
     borderColor: "#f55d90",
+  },
+  noDataFoundImage: {
+    height: "100%",
+    width: "100%",
   },
 });
