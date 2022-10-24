@@ -23,7 +23,7 @@ function StartPage() {
     <View style={styles.startPage}>
       <Image
         style={styles.image}
-        source={require("../path-to-success/assets/app_assets/todo_logo.png")}
+        source={require("./assets/app_assets/todo_logo.png")}
       />
       <Text style={styles.startText}>Complete Today Succeed Tomorrow</Text>
       <ActivityIndicator size="large" color="yellow" />

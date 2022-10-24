@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "path-to-success",
-    "slug": "path-to-success",
+    "name": "Progress",
+    "slug": "Progress",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/todo_logo.png",
@@ -25,7 +25,7 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
       },
-      "package": "com.pathtosuccess.pathtosuccess"
+      "package": "com.bmstechsnakodar.Progress"
     },
     "web": {
       "favicon": "./assets/favicon.png"

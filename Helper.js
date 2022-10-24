@@ -1,5 +1,5 @@
 import axios from "axios";
-import * as constants from "../path-to-success/Constants";
+import * as constants from "./Constants";
 
 const baseUrl = constants.BASE_URL;
 export const fetchData = async (endpoint, body, token) => {
