@@ -144,7 +144,7 @@ export const HomeScreen = ({ navigation }) => {
           <Text style={styles.logoutText}>LOGOUT </Text>
           <Image
             style={styles.logoutImage}
-            source={require("../assets/app_assets/logout.png")}
+            source={require("../assets/app_assets/logoutV2.png")}
           />
         </TouchableOpacity>
       </View>
