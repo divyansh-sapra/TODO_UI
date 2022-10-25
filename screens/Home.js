@@ -66,18 +66,26 @@ export const HomeScreen = ({ navigation }) => {
     };
 
     const getData = async () => {
-      let data = await helpers.fetchGetData("get-user-task", {}, token);
-      setData(data[0]);
+      if (isLoading) {
+        let data = await helpers.fetchGetData("get-user-task", {}, token);
+        setData(data[0]);
+      }
     };
     getToken();
     if (DATA == false) {
       getData();
+      isLoading = false;
     }
+
+    //nice thing to understand this will solve api hitting again and again
     navigation.addListener("focus", () => {
-      getData();
+      // getData();
+      setData(false)
+      isLoading = false;
     });
   });
 
+  let isLoading = true;
   let [token, setToken] = React.useState(null);
   let [DATA, setData] = React.useState(false);
   let [dropdownData, setDropdownData] = React.useState("");
@@ -112,19 +120,34 @@ export const HomeScreen = ({ navigation }) => {
   };
   return (
     <View style={styles.container}>
-      <TouchableOpacity
-        onPress={() => {
-          logoutUser("logout-user", navigation);
-        }}
-        underlayColor="none"
-        style={styles.logoutButton}
-      >
-        <Text style={styles.logoutText}>LOGOUT{" "}</Text>
-        <Image
-          style={styles.logoutImage}
-          source={require("../assets/app_assets/logout.png")}
-        />
-      </TouchableOpacity>
+      <View style={styles.topButtons}>
+        <TouchableOpacity
+          onPress={() => {
+            setData(false)
+          }}
+          underlayColor="none"
+          style={styles.reloadButton}
+        >
+          <Text style={styles.logoutText}>RELOAD</Text>
+          <Image
+            style={styles.logoutImage}
+            source={require("../assets/app_assets/reload.png")}
+          />
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => {
+            logoutUser("logout-user", navigation);
+          }}
+          underlayColor="none"
+          style={styles.logoutButton}
+        >
+          <Text style={styles.logoutText}>LOGOUT </Text>
+          <Image
+            style={styles.logoutImage}
+            source={require("../assets/app_assets/logout.png")}
+          />
+        </TouchableOpacity>
+      </View>
       <StatusBar style="dark" />
       {markDeleteCompleteModal ? <MarkDeleteCompleteModal /> : null}
       {addMainTaskModal ? <AddNewTaskModal /> : null}
@@ -611,6 +634,7 @@ const styles = StyleSheet.create({
     height: "100%",
   },
   noDataFoundImage: {
+    marginTop: 10,
     height: "100%",
     width: "100%",
   },
@@ -833,7 +857,7 @@ const styles = StyleSheet.create({
   logoutButton: {
     alignSelf: "flex-end",
     flexDirection: "row",
-    backgroundColor: "yellow",
+    backgroundColor: "#e9f57a",
     width: 120,
     justifyContent: "center",
     padding: 5,
@@ -843,5 +867,19 @@ const styles = StyleSheet.create({
   },
   logoutText: {
     justifyContent: "center",
+  },
+  reloadButton: {
+    flexDirection: "row",
+    backgroundColor: "#7af581",
+    width: 120,
+    justifyContent: "center",
+    padding: 5,
+    borderRadius: 8,
+    marginTop: 10,
+    marginLeft: 10,
+  },
+  topButtons: {
+    flexDirection: "row",
+    justifyContent: "space-between",
   },
 });

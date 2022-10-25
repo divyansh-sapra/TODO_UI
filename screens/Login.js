@@ -26,9 +26,9 @@ export const Login = ({ navigation, route }) => {
 
   React.useEffect(() => {
     navigation.addListener("blur", () => {
-      setEmail("");
-      setUsername("");
-      setPassword("");
+      // setEmail("");
+      // setUsername("");
+      // setPassword("");
     });
   }, [navigation]);
   return (

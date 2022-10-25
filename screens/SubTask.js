@@ -335,7 +335,7 @@ export const SubTaskMain = ({ route, navigation }) => {
       sub_task_id: subTask.subTaskId,
       sub_task_priority: tempPriority,
       sub_task_progress: tempProgress,
-      sub_task_complete_date: selectedDate,
+      sub_task_complete_date: (selectedDate=='Select Date') ? subTask.complete_date : selectedDate,
       sub_task_task: tempTask,
     };
     editFullSubTask(!editSubTask);
